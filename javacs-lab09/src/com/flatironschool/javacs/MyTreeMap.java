@@ -4,6 +4,8 @@
 package com.flatironschool.javacs;
 
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Stack;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -73,6 +75,23 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		
 		// the actual search
         // TODO: Fill this in.
+        //if find node that contains TARGET as key, return node
+
+        //search the tree
+        Node currentNode = root;
+        while(currentNode != null){
+        	if(k.compareTo(currentNode.key) == 0){
+        		return currentNode;
+        	}
+        	else{
+	        	if(k.compareTo(currentNode.key) > 0){
+	        		currentNode = currentNode.right;
+	        	}
+	        	else if(k.compareTo(currentNode.key) < 0){
+	        		currentNode = currentNode.left;
+	        	}
+        	}
+        }
         return null;
 	}
 
@@ -92,6 +111,30 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
+		//tree traversal
+		ArrayList<V> values = new ArrayList<V>();
+		Stack<Node> stack = new Stack<Node>();
+		Node p = root;
+
+		//tree traversal code source: http://www.programcreek.com/2012/12/leetcode-solution-of-binary-tree-inorder-traversal-in-java/
+		while(stack.empty() == false || p != null){
+			if(p!= null){
+				stack.push(p);
+				p = p.left;
+			}
+
+			else{
+				Node t = stack.pop();
+				values.add(t.value);
+				p = t.right;
+			}
+		}
+
+		for(V value: values){
+			if(equals(target, value)){
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -118,7 +161,23 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
         // TODO: Fill this in.
+		if(root != null){
+			inOrderHelper(root, set);
+		}
+
 		return set;
+	}
+
+
+	private void inOrderHelper(Node pointer, Set set){
+		//inOrder tree traversal source code: http://www.programcreek.com/2012/12/leetcode-solution-of-binary-tree-inorder-traversal-in-java/
+		if(pointer.left != null){
+			inOrderHelper(pointer.left, set);
+		}
+		set.add(pointer.key);
+		if(pointer.right!=null){
+			inOrderHelper(pointer.right, set);
+		}
 	}
 
 	@Override
@@ -136,7 +195,44 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	private V putHelper(Node node, K key, V value) {
         // TODO: Fill this in.
-        return null;
+        //if key in tree, replaces old Value, returns old Value
+        //if not in tree, create new node, finds right place to add, returns null
+		if(containsKey(key) == true){
+			Node current = findNode(key);
+			V oldValue = current.value;
+			current.value = value;
+			return oldValue;
+		}
+		else{
+
+			Node nodeNew = new Node(key, value);
+			size+=1;
+			Node currentNode = root;
+        	while(true){
+	
+		        	if(((Comparable<? super K>)(nodeNew.key)).compareTo(currentNode.key) < 0){
+		        		if(currentNode.left == null){
+		        			currentNode.left = nodeNew;
+		        			return null;
+		        		}
+		        		else{
+		        			currentNode = currentNode.left;
+		        		}
+
+		        	}
+		        	else if(((Comparable<? super K>)(nodeNew.key)).compareTo(currentNode.key) > 0){
+		        		if(currentNode.right == null){
+		        			currentNode.right = nodeNew;
+		        			return null;
+		        		}
+		        		else{
+		        			currentNode = currentNode.right;
+		        		}
+		        	
+		        	}
+        	}
+
+		}
 	}
 
 	@Override
